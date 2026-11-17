@@ -13,6 +13,9 @@
 //   mods     → GIRA NUM mods | MOVE NUM NUM mods | ε
 //
 // Para no primeiro erro, lançando ErroSintatico (linha, esperado, encontrado).
+//
+// Fase 2: todo nó que pode ter erro semântico (Tela, Reta, Circulo, Retangulo)
+// e também o Grupo guardam no campo "linha" a linha da palavra-chave que o inicia.
 
 const PRIMEIRO_ITEM = ["RETA", "CIRCULO", "RETANGULO", "GRUPO"];
 const ATRIBUTOS = ["BORDA", "FUNDO", "ESPESSURA"];
@@ -73,10 +76,10 @@ export function analisarSintatico(tokens, linhaFinal = 1) {
 
     // tela → TELA NUM NUM
     function tela() {
-        esperar("TELA");
+        const { linha } = esperar("TELA");
         const largura = numero();
         const altura = numero();
-        return { tipo: "Tela", largura, altura };
+        return { tipo: "Tela", linha, largura, altura };
     }
 
     // itens → item itens | ε        (ε quando o próximo token é FECHA ou FIM)
@@ -111,23 +114,23 @@ export function analisarSintatico(tokens, linhaFinal = 1) {
 
     // forma → RETA NUM NUM NUM NUM estilo
     function reta() {
-        esperar("RETA");
+        const { linha } = esperar("RETA");
         const x1 = numero(), y1 = numero(), x2 = numero(), y2 = numero();
-        return { tipo: "Reta", x1, y1, x2, y2, estilo: estilo() };
+        return { tipo: "Reta", linha, x1, y1, x2, y2, estilo: estilo() };
     }
 
     // forma → CIRCULO NUM NUM NUM estilo
     function circulo() {
-        esperar("CIRCULO");
+        const { linha } = esperar("CIRCULO");
         const cx = numero(), cy = numero(), raio = numero();
-        return { tipo: "Circulo", cx, cy, raio, estilo: estilo() };
+        return { tipo: "Circulo", linha, cx, cy, raio, estilo: estilo() };
     }
 
     // forma → RETANGULO NUM NUM NUM NUM estilo
     function retangulo() {
-        esperar("RETANGULO");
+        const { linha } = esperar("RETANGULO");
         const x = numero(), y = numero(), largura = numero(), altura = numero();
-        return { tipo: "Retangulo", x, y, largura, altura, estilo: estilo() };
+        return { tipo: "Retangulo", linha, x, y, largura, altura, estilo: estilo() };
     }
 
     // estilo → BORDA COR estilo | FUNDO COR estilo | ESPESSURA NUM estilo | ε
@@ -146,7 +149,7 @@ export function analisarSintatico(tokens, linhaFinal = 1) {
     // grupo → GRUPO mods ABRE itens FECHA
     // mods  → GIRA NUM mods | MOVE NUM NUM mods | ε   (ordem escrita é preservada)
     function grupo() {
-        esperar("GRUPO");
+        const { linha } = esperar("GRUPO");
         const modificadores = [];
 
         while (MODIFICADORES.includes(atual().tipo)) {
@@ -163,7 +166,7 @@ export function analisarSintatico(tokens, linhaFinal = 1) {
         esperar("ABRE");
         const filhos = itens(true, []);
         esperar("FECHA");
-        return { tipo: "Grupo", modificadores, filhos };
+        return { tipo: "Grupo", linha, modificadores, filhos };
     }
 
     return programa();

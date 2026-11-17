@@ -1,0 +1,12 @@
+{
+  "name": "rabisco",
+  "version": "2.0.0",
+  "description": "Rabisco: uma linguagem para desenhar. Compilador do texto ao SVG (Fases 1 e 2).",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node testes.mjs",
+    "imagens": "node ferramentas/imagens.mjs",
+    "servidor": "python -m http.server 8000"
+  }
+}

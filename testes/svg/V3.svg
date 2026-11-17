@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <g>
+    <circle cx="100" cy="100" r="50" fill="none" stroke="black" stroke-width="1"/>
+  </g>
+  <g transform="rotate(90)">
+    <line x1="0" y1="0" x2="100" y2="0" fill="none" stroke="blue" stroke-width="1"/>
+  </g>
+  <g transform="translate(10 20)">
+    <rect x="0" y="0" width="30" height="30" fill="orange" stroke="black" stroke-width="1"/>
+  </g>
+  <g transform="rotate(30) translate(50 60) rotate(15)">
+  </g>
+</svg>

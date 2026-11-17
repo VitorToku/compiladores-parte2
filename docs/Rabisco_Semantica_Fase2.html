@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Rabisco — Documento de semântica (Fase 2)</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.5pt; line-height: 1.4; color: #1a1a1a; max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 20pt; color: #1f2a5c; margin: 0 0 2px; }
+  h2 { font-size: 13.5pt; color: #1f2a5c; border-bottom: 2px solid #1f2a5c; padding-bottom: 2px; margin: 20px 0 8px; }
+  h3 { font-size: 11pt; color: #1f2a5c; margin: 14px 0 6px; }
+  .sub { color: #555; margin: 0 0 12px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px; page-break-inside: avoid; }
+  th { background: #1f2a5c; color: #fff; text-align: left; padding: 4px 8px; font-weight: 600; }
+  td { border: 1px solid #c5c9d8; padding: 4px 8px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f4f5fa; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 9pt; }
+  pre { background: #f4f5fa; border: 1px solid #c5c9d8; padding: 6px 8px; white-space: pre-wrap; margin: 4px 0 8px; page-break-inside: avoid; }
+  .amostra { display: inline-block; width: 14px; height: 14px; border: 1px solid #555; vertical-align: middle; margin-right: 6px; }
+  ol li, ul li { margin-bottom: 4px; }
+  .figs { display: flex; gap: 16px; align-items: flex-start; page-break-inside: avoid; }
+  .figs img { border: 1px solid #999; }
+  .pequeno { font-size: 9pt; color: #555; }
+  .quebra { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>Rabisco — Documento de semântica</h1>
+<p class="sub">Fase 2: da AST ao SVG · Laboratório de Programação Avançada II · Compiladores</p>
+
+<p>Integrantes: Alexsander (20010480), Bruno Costa Dourado (20010547), João Vitor Leão Bonifácio (23024758),
+Vinicius Binda (23024415), Vitor Hideki Tokunaga (23024862), Felipe Martins Dos Santos (23024894).</p>
+
+<p>O compilador completo segue o caminho <b>programa → tokens → AST → verificação semântica → SVG</b>.
+Nesta fase foram escritos <code>semantica.js</code> (função <code>verificar(ast)</code>) e
+<code>gerador.js</code> (função <code>gerar(ast)</code>), e o <code>parser.js</code> passou a guardar a linha nos nós.</p>
+
+<h2>1. Tabela de mapeamento: nó da AST → SVG</h2>
+
+<table>
+  <tr><th style="width:22%">Nó da AST</th><th style="width:30%">Campos</th><th>SVG gerado</th></tr>
+  <tr><td><code>Programa</code></td><td><code>tela</code>, <code>filhos</code></td>
+      <td>O elemento raiz <code>&lt;svg&gt;</code> (dados da <code>tela</code>) com os filhos dentro, <b>na ordem do programa</b> (o que vem depois fica por cima).</td></tr>
+  <tr><td><code>Tela</code></td><td><code>linha</code>, <code>largura</code> L, <code>altura</code> A</td>
+      <td><code>&lt;svg xmlns="http://www.w3.org/2000/svg" width="L" height="A" viewBox="0 0 L A"&gt;</code></td></tr>
+  <tr><td><code>Reta</code></td><td><code>linha</code>, <code>x1</code>, <code>y1</code>, <code>x2</code>, <code>y2</code>, <code>estilo</code></td>
+      <td><code>&lt;line x1 y1 x2 y2 fill stroke stroke-width/&gt;</code></td></tr>
+  <tr><td><code>Circulo</code></td><td><code>linha</code>, <code>cx</code>, <code>cy</code>, <code>raio</code>, <code>estilo</code></td>
+      <td><code>&lt;circle cx cy r fill stroke stroke-width/&gt;</code> (<code>r</code> = <code>raio</code>)</td></tr>
+  <tr><td><code>Retangulo</code></td><td><code>linha</code>, <code>x</code>, <code>y</code>, <code>largura</code>, <code>altura</code>, <code>estilo</code></td>
+      <td><code>&lt;rect x y width height fill stroke stroke-width/&gt;</code></td></tr>
+  <tr><td><code>estilo.borda</code></td><td>cor</td><td><code>stroke</code> (padrão <code>black</code>)</td></tr>
+  <tr><td><code>estilo.fundo</code></td><td>cor</td><td><code>fill</code> (padrão <code>none</code>)</td></tr>
+  <tr><td><code>estilo.espessura</code></td><td>número</td><td><code>stroke-width</code> (padrão <code>1</code>)</td></tr>
+  <tr><td><code>Grupo</code></td><td><code>linha</code>, <code>modificadores</code>, <code>filhos</code></td>
+      <td><code>&lt;g transform="..."&gt;</code> … filhos … <code>&lt;/g&gt;</code>. Os filhos usam coordenadas locais (origem no ponto do grupo).
+          Sem modificadores: <code>&lt;g&gt;</code> sem <code>transform</code>.</td></tr>
+  <tr><td><code>Rotacao</code></td><td><code>graus</code> N</td><td><code>rotate(N)</code> — N graus, sentido horário, em torno da origem atual</td></tr>
+  <tr><td><code>Deslocamento</code></td><td><code>dx</code> X, <code>dy</code> Y</td><td><code>translate(X Y)</code> — X para a direita, Y para baixo</td></tr>
+  <tr><td>vários modificadores</td><td>lista, na ordem escrita</td>
+      <td>Todos no mesmo <code>transform</code>, separados por espaço, <b>na ordem em que foram escritos</b>:
+          <code>grupo gira 30 move 50 60 gira 15</code> → <code>transform="rotate(30) translate(50 60) rotate(15)"</code></td></tr>
+</table>
+
+<div style="page-break-inside: avoid">
+<h3>Exemplo</h3>
+<div class="figs">
+<pre style="flex:1">tela 400 300
+// um carro simples
+retangulo 50 150 200 60 fundo azul
+grupo move 70 190 {
+  circulo 0 0 25 fundo preto
+  grupo gira 45 {
+    reta 0 0 20 0 borda branco espessura 2
+  }
+}
+grupo move 200 190 {
+  circulo 0 0 25 fundo preto
+}</pre>
+<pre style="flex:1.6">&lt;svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"&gt;
+  &lt;rect x="50" y="150" width="200" height="60" fill="blue" stroke="black" stroke-width="1"/&gt;
+  &lt;g transform="translate(70 190)"&gt;
+    &lt;circle cx="0" cy="0" r="25" fill="black" stroke="black" stroke-width="1"/&gt;
+    &lt;g transform="rotate(45)"&gt;
+      &lt;line x1="0" y1="0" x2="20" y2="0" fill="none" stroke="white" stroke-width="2"/&gt;
+    &lt;/g&gt;
+  &lt;/g&gt;
+  &lt;g transform="translate(200 190)"&gt;
+    &lt;circle cx="0" cy="0" r="25" fill="black" stroke="black" stroke-width="1"/&gt;
+  &lt;/g&gt;
+&lt;/svg&gt;</pre>
+</div>
+<p class="pequeno">Esse programa (o exemplo do enunciado escrito em Rabisco) gera exatamente o SVG esperado no enunciado; isso é conferido automaticamente em <code>testes.mjs</code>.</p>
+</div>
+
+<h2>2. Tabela de cores</h2>
+
+<table>
+  <tr><th>Cor em Rabisco</th><th>Cor no SVG</th><th>Amostra</th></tr>
+  <tr><td><code>preto</code></td><td><code>black</code></td><td><span class="amostra" style="background:black"></span></td></tr>
+  <tr><td><code>branco</code></td><td><code>white</code></td><td><span class="amostra" style="background:white"></span></td></tr>
+  <tr><td><code>vermelho</code></td><td><code>red</code></td><td><span class="amostra" style="background:red"></span></td></tr>
+  <tr><td><code>verde</code></td><td><code>green</code></td><td><span class="amostra" style="background:green"></span></td></tr>
+  <tr><td><code>azul</code></td><td><code>blue</code></td><td><span class="amostra" style="background:blue"></span></td></tr>
+  <tr><td><code>amarelo</code></td><td><code>yellow</code></td><td><span class="amostra" style="background:yellow"></span></td></tr>
+  <tr><td><code>laranja</code></td><td><code>orange</code></td><td><span class="amostra" style="background:orange"></span></td></tr>
+  <tr><td><code>roxo</code></td><td><code>purple</code></td><td><span class="amostra" style="background:purple"></span></td></tr>
+  <tr><td><code>#RRGGBB</code></td><td>passa direto, sem alteração (inclusive maiúsculas/minúsculas): <code>#87CEEB</code> → <code>#87CEEB</code></td><td><span class="amostra" style="background:#87CEEB"></span></td></tr>
+</table>
+
+<h2>3. Verificação semântica</h2>
+
+<p><code>verificar(ast)</code> percorre a AST inteira de forma recursiva (a tela, depois cada item na ordem do programa,
+descendo em grupos aninhados de qualquer profundidade) e devolve <b>todos</b> os erros como <code>[ { linha, mensagem }, ... ]</code>.
+Vetor vazio = nenhum erro. Se houver erro, nenhum SVG é gerado e a página mostra cada mensagem.</p>
+
+<table>
+  <tr><th>Verificação</th><th>Nó</th><th>Mensagem</th></tr>
+  <tr><td>largura ou altura igual a zero</td><td><code>Tela</code></td><td><code>linha N: a tela precisa ter largura e altura maiores que zero</code></td></tr>
+  <tr><td>raio igual a zero</td><td><code>Circulo</code></td><td><code>linha N: o círculo precisa ter raio maior que zero</code></td></tr>
+  <tr><td>largura ou altura igual a zero</td><td><code>Retangulo</code></td><td><code>linha N: o retângulo precisa ter largura e altura maiores que zero</code></td></tr>
+</table>
+<p>A linha N é a da palavra-chave que inicia o nó (<code>tela</code>, <code>circulo</code>, <code>retangulo</code>). Na página, cada mensagem aparece como
+<code>Erro semântico na linha N: …</code>.</p>
+
+<h2>4. Decisões de projeto desta fase</h2>
+<ol>
+  <li><b>Linha nos nós.</b> O parser guarda o campo <code>linha</code> (linha do token da palavra-chave) em <code>Tela</code>, <code>Reta</code>,
+      <code>Circulo</code>, <code>Retangulo</code> e <code>Grupo</code>. A reta e o grupo não têm verificação hoje, mas já carregam a linha para futuras regras.</li>
+  <li><b>Estilo sempre explícito.</b> Toda forma recebe sempre os três atributos <code>fill</code>, <code>stroke</code> e <code>stroke-width</code>,
+      com os padrões <code>none</code>, <code>black</code> e <code>1</code> quando o atributo não foi escrito. Assim nunca há reta invisível nem forma preta.</li>
+  <li><b>Atributo repetido.</b> Vale o último. Isso já é resolvido pelo parser da Fase 1 (o último valor sobrescreve o anterior no objeto <code>estilo</code>); o gerador só lê.</li>
+  <li><b>Reta com <code>fundo</code>.</b> É aceita e o <code>fill</code> é escrito, mas não tem efeito visual (uma linha não tem área). Sem <code>fundo</code>, sai <code>fill="none"</code>, como no exemplo do enunciado.</li>
+  <li><b>Espessura zero.</b> Não é erro semântico (não está entre as três verificações): gera <code>stroke-width="0"</code>, ou seja, forma sem contorno. É útil para formas só com preenchimento.</li>
+  <li><b>Grupo sem modificadores</b> vira <code>&lt;g&gt;</code> sem o atributo <code>transform</code> (em vez de <code>transform=""</code>). As coordenadas dos filhos ficam iguais às do grupo pai.</li>
+  <li><b>Grupo vazio</b> (aceito pela gramática da Fase 1) vira <code>&lt;g …&gt;&lt;/g&gt;</code>: é SVG válido e não desenha nada.</li>
+  <li><b>Vários modificadores e modificadores repetidos</b> vão todos para o mesmo <code>transform</code>, na ordem escrita, sem simplificar
+      (<code>gira 30 gira 15</code> → <code>rotate(30) rotate(15)</code>, e não <code>rotate(45)</code>). O efeito dos grupos pais é composto pelo próprio aninhamento dos <code>&lt;g&gt;</code>.</li>
+  <li><b>Ângulos acima de 360</b> passam como estão (<code>rotate(400)</code> é válido e equivale a 40°).</li>
+  <li><b>Sem outras regras semânticas.</b> Reta de comprimento zero e formas fora da tela não são erro: o SVG simplesmente recorta o que fica fora do <code>viewBox</code>.</li>
+  <li><b>Todos os erros, em ordem.</b> A verificação não para no primeiro erro: devolve todos, na ordem do programa (percurso em pré-ordem). Uma tela com largura e altura zero gera um único erro.</li>
+  <li><b>Ordem das fases.</b> Léxico → sintático → semântico → gerador. Em cada fase com erro, as seguintes não rodam (a página mostra só os erros daquela fase).</li>
+  <li><b>Texto do SVG.</b> Indentado com 2 espaços por nível de grupo. Não é preciso escapar caracteres: todo valor vem de um token <code>NUM</code> ou <code>COR</code>, que não podem conter aspas nem <code>&lt;</code>.</li>
+  <li><b>Gerador recursivo.</b> <code>gerar(ast)</code> visita cada nó e desce nos filhos (como o <code>paraMermaid</code> da aula). Não usa nenhuma biblioteca de desenho nem de geração de SVG.</li>
+  <li><b>Página-base.</b> Como o <code>svg.js</code> da página-base não estava no repositório da Fase 1, escrevemos um equivalente (valida o texto com <code>DOMParser</code>, confere o <code>xmlns</code>, desenha e baixa o arquivo). Ele pode ser trocado pelo da página-base sem mudar o compilador.</li>
+  <li><b>Caso V2 da Fase 1.</b> Ele tinha <code>circulo 150 100 0</code>, que agora é erro semântico. Para continuar sendo um programa válido, o raio passou a 15. O raio zero passou a ser testado no caso S2.</li>
+</ol>
+
+<h2>5. Testes</h2>
+<p>Os casos estão em <code>casos.js</code> (e na lista da página). <code>node testes.mjs</code> confere todos e grava os SVGs em <code>testes/svg/</code>;
+as imagens estão em <code>testes/png/</code> e as capturas da página em <code>testes/pagina/</code>. Detalhes em <code>casos-teste.md</code>.</p>
+
+<table>
+  <tr><th>Caso</th><th>O que cobre</th><th>Resultado</th></tr>
+  <tr><td>V1</td><td>programa mínimo (só a tela)</td><td>SVG vazio 800×600</td></tr>
+  <tr><td>V2</td><td>as três formas, todos os atributos, cores por nome e hexadecimal, atributo repetido</td><td>SVG</td></tr>
+  <tr><td>V3</td><td>grupo sem modificador, com gira, com move, com vários e grupo vazio</td><td>SVG</td></tr>
+  <tr><td>V4</td><td>carro, grupos aninhados em 3 níveis</td><td>SVG</td></tr>
+  <tr><td>V5</td><td>casa e sol (cenário completo)</td><td>SVG</td></tr>
+  <tr><td>S1</td><td>tela com altura zero</td><td><code>linha 1: a tela precisa ter largura e altura maiores que zero</code></td></tr>
+  <tr><td>S2</td><td>círculo de raio zero dentro de dois níveis de grupo</td><td><code>linha 6: o círculo precisa ter raio maior que zero</code></td></tr>
+  <tr><td>S3</td><td>as três verificações juntas (inclusive dentro de grupos)</td><td>4 erros: linhas 1, 2, 4 e 6</td></tr>
+</table>
+
+<div class="figs">
+  <figure style="margin:0"><img src="../testes/png/V2.png" width="150"><figcaption class="pequeno">V2</figcaption></figure>
+  <figure style="margin:0"><img src="../testes/png/V3.png" width="100"><figcaption class="pequeno">V3</figcaption></figure>
+  <figure style="margin:0"><img src="../testes/png/V4.png" width="200"><figcaption class="pequeno">V4</figcaption></figure>
+  <figure style="margin:0"><img src="../testes/png/V5.png" width="160"><figcaption class="pequeno">V5</figcaption></figure>
+</div>
+<p class="pequeno">No V2, o último comando é <code>retangulo 0 0 300 200 espessura 0 fundo azul fundo verde</code>: ele cobre a tela inteira
+por cima das outras formas (a ordem do programa define quem fica por cima) e sai verde, não azul (atributo repetido vale o último).</p>
+
+<div style="page-break-inside: avoid">
+<h2>6. Desenho final: robô acenando</h2>
+<div class="figs">
+  <div style="flex:1">
+    <p>Programa em <code>desenho-final/robo.rab</code> (caso D1). Usa as três formas, cores por nome e hexadecimais e grupos aninhados
+       em até 4 níveis com os dois modificadores: o robô inteiro é um grupo <code>move 120 40</code>; cada braço é um grupo
+       <code>move … gira …</code> (o direito, <code>gira 220</code>, aponta para cima); a mão é um grupo <code>move 8 92</code> dentro do braço;
+       e os tracinhos de aceno são grupos <code>gira 60/90/120</code> dentro da mão. A cabeça, os olhos, o corpo e as pernas também são grupos
+       com coordenadas locais.</p>
+    <p class="pequeno">Arquivos: <code>desenho-final/robo.rab</code>, <code>desenho-final/robo.svg</code>, <code>desenho-final/robo.png</code>.</p>
+  </div>
+  <img src="../desenho-final/robo.png" width="260">
+</div>
+</div>
+
+</body>
+</html>

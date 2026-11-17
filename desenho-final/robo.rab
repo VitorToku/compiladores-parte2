@@ -1,0 +1,78 @@
+tela 400 440
+// Desenho final: um robô acenando
+// céu e chão
+retangulo 0 0 400 440 fundo #E3F2FD borda #E3F2FD
+retangulo 0 380 400 60 fundo #9E9E9E borda #616161 espessura 2
+
+// o robô inteiro: origem no canto superior esquerdo do robô
+grupo move 120 40 {
+  // braço esquerdo, caído ao lado do corpo (desenhado antes, fica atrás do corpo)
+  grupo move 6 132 gira 20 {
+    retangulo 0 0 16 85 fundo #78909C borda #37474F espessura 2
+    grupo move 8 92 {
+      circulo 0 0 12 fundo #B0BEC5 borda #37474F espessura 2
+    }
+  }
+
+  // braço direito, levantado, acenando
+  grupo move 154 140 gira 220 {
+    retangulo 0 0 16 85 fundo #78909C borda #37474F espessura 2
+    grupo move 8 92 {
+      circulo 0 0 12 fundo #B0BEC5 borda #37474F espessura 2
+      // tracinhos de movimento da mão
+      grupo gira 60 {
+        reta 18 0 30 0 borda laranja espessura 3
+      }
+      grupo gira 90 {
+        reta 18 0 30 0 borda laranja espessura 3
+      }
+      grupo gira 120 {
+        reta 18 0 30 0 borda laranja espessura 3
+      }
+    }
+  }
+
+  // antena
+  reta 80 0 80 30 borda preto espessura 3
+  circulo 80 0 8 fundo vermelho borda preto espessura 2
+
+  // cabeça
+  grupo move 30 30 {
+    retangulo 0 0 100 80 fundo #B0BEC5 borda #37474F espessura 3
+    // olhos
+    grupo move 30 35 {
+      circulo 0 0 12 fundo branco borda #37474F espessura 2
+      circulo 0 0 5 fundo azul borda azul
+    }
+    grupo move 70 35 {
+      circulo 0 0 12 fundo branco borda #37474F espessura 2
+      circulo 0 0 5 fundo azul borda azul
+    }
+    // boca
+    retangulo 30 60 40 8 fundo #37474F borda #37474F
+  }
+
+  // pescoço
+  retangulo 70 110 20 10 fundo #78909C borda #37474F espessura 2
+
+  // corpo com painel de luzes
+  grupo move 10 120 {
+    retangulo 0 0 140 120 fundo #90A4AE borda #37474F espessura 3
+    retangulo 35 20 70 45 fundo #263238 borda #37474F espessura 2
+    circulo 50 42 7 fundo verde borda preto
+    circulo 70 42 7 fundo amarelo borda preto
+    circulo 90 42 7 fundo vermelho borda preto
+    reta 35 90 105 90 borda #37474F espessura 4
+    reta 35 102 105 102 borda #37474F espessura 4
+  }
+
+  // pernas e pés
+  grupo move 32 240 {
+    retangulo 8 0 22 90 fundo #78909C borda #37474F espessura 2
+    retangulo 0 90 38 14 fundo #37474F borda #37474F
+  }
+  grupo move 90 240 {
+    retangulo 8 0 22 90 fundo #78909C borda #37474F espessura 2
+    retangulo 0 90 38 14 fundo #37474F borda #37474F
+  }
+}

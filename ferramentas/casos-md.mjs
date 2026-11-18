@@ -8,7 +8,7 @@ const bloco = (texto) => "```\n" + texto.replace(/\n$/, "") + "\n```\n";
 const fase = { "erro-lexico": "erro léxico", "erro-sintatico": "erro sintático", "erro-semantico": "erro semântico" };
 const prefixoPagina = { "erro-semantico": "Erro semântico na " };
 
-let md = `# Casos de teste — Rabisco (Fase 2)
+let md = `# Casos de teste — Rabisko (Fase 2)
 
 Gerado a partir de \`casos.js\` por \`node ferramentas/casos-md.mjs\`. Para conferir tudo: \`node testes.mjs\`
 (grava os SVGs em \`testes/svg/\`); as imagens são geradas por \`node ferramentas/imagens.mjs\`.

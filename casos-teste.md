@@ -1,4 +1,4 @@
-# Casos de teste — Rabisco (Fase 2)
+# Casos de teste — Rabisko (Fase 2)
 
 Gerado a partir de `casos.js` por `node ferramentas/casos-md.mjs`. Para conferir tudo: `node testes.mjs`
 (grava os SVGs em `testes/svg/`); as imagens são geradas por `node ferramentas/imagens.mjs`.

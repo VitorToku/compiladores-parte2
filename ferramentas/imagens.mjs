@@ -45,7 +45,7 @@ const servidor = http.createServer((req, res) => {
 await new Promise((ok) => servidor.listen(0, "127.0.0.1", ok));
 const base = "http://127.0.0.1:" + servidor.address().port;
 
-const perfil = fs.mkdtempSync(path.join((await import("node:os")).tmpdir(), "rabisco-nav-"));
+const perfil = fs.mkdtempSync(path.join((await import("node:os")).tmpdir(), "Rabisko-nav-"));
 
 async function capturar(url, saida, largura, altura) {
     fs.mkdirSync(path.dirname(saida), { recursive: true });

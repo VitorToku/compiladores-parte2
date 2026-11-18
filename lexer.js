@@ -1,4 +1,4 @@
-// lexer.js — analisador léxico da linguagem Rabisco.
+// lexer.js — analisador léxico da linguagem Rabisko.
 // Devolve { tokens, erros, linhaFinal }.
 //   tokens: [{ tipo, lexema, linha }]
 //   erros:  [{ linha, lexema }]  (lexema = a palavra inteira, até o próximo espaço)

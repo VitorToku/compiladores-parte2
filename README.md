@@ -1,8 +1,8 @@
-# Rabisco — uma linguagem para desenhar (Fase 2: da AST ao SVG)
+# Rabisko — uma linguagem para desenhar (Fase 2: da AST ao SVG)
 
 Atividade da disciplina **Laboratório de Programação Avançada II · Compiladores**.
 
-Rabisco é uma pequena linguagem de comandos para descrever desenhos. A Fase 1 construiu o léxico, o parser e a AST
+Rabisko é uma pequena linguagem de comandos para descrever desenhos. A Fase 1 construiu o léxico, o parser e a AST
 (ver [README-fase1.md](README-fase1.md)). Esta fase completa o compilador:
 
 ```
@@ -36,7 +36,7 @@ Em cada fase com erro, as seguintes não rodam. Tudo em JavaScript puro, sem bib
 
 ## Semântica (resumo)
 
-| Rabisco | SVG |
+| Rabisko | SVG |
 |---------|-----|
 | `tela L A` | `<svg xmlns="http://www.w3.org/2000/svg" width="L" height="A" viewBox="0 0 L A">` |
 | `reta X1 Y1 X2 Y2` · `circulo CX CY R` · `retangulo X Y L A` | `<line>` · `<circle>` · `<rect>` |
@@ -53,8 +53,8 @@ Em cada fase com erro, as seguintes não rodam. Tudo em JavaScript puro, sem bib
 
 `#RRGGBB` passa direto. Erros semânticos: tela com largura/altura zero, círculo com raio zero, retângulo com largura/altura zero.
 
-Documento completo (mapeamento, cores e decisões de projeto): [docs/Rabisco_Semantica_Fase2.pdf](docs/Rabisco_Semantica_Fase2.pdf)
-(fonte em [docs/Rabisco_Semantica_Fase2.html](docs/Rabisco_Semantica_Fase2.html)).
+Documento completo (mapeamento, cores e decisões de projeto): [docs/Rabisko_Semantica_Fase2.pdf](docs/Rabisko_Semantica_Fase2.pdf)
+(fonte em [docs/Rabisko_Semantica_Fase2.html](docs/Rabisko_Semantica_Fase2.html)).
 
 ## Como executar
 
@@ -77,7 +77,7 @@ node ferramentas/casos-md.mjs   # reescreve casos-teste.md a partir de casos.js
 
 | Entregável | Onde |
 |------------|------|
-| 5.1 Documento de semântica | `docs/Rabisco_Semantica_Fase2.pdf` |
+| 5.1 Documento de semântica | `docs/Rabisko_Semantica_Fase2.pdf` |
 | 5.2 Código | `semantica.js`, `gerador.js`, `parser.js` |
 | 5.3 Página funcionando | `index.html` + `main.js` + `svg.js` |
 | 5.4 Testes: 5 válidos (`.svg` + imagem) | `testes/svg/V1..V5.svg`, `testes/png/V1..V5.png` |

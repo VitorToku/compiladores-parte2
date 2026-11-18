@@ -1,4 +1,4 @@
-// semantica.js — verificação semântica da linguagem Rabisco (Fase 2).
+// semantica.js — verificação semântica da linguagem Rabisko (Fase 2).
 //
 // A gramática aceita o zero em qualquer número, então alguns programas passam
 // pelo parser mas não fazem sentido. Esta fase os detecta:

@@ -76,7 +76,7 @@ function verificacoesDoGerador() {
     const conferir = (nome, ok, detalhe) => r.push({ nome, ok, detalhe });
     const svgDe = (p) => executar(p).svg ?? "";
 
-    // 1. O exemplo do enunciado, escrito em Rabisco, gera exatamente o SVG esperado.
+    // 1. O exemplo do enunciado, escrito em Rabisko, gera exatamente o SVG esperado.
     const carro = [
         "tela 400 300", "// um carro simples",
         "retangulo 50 150 200 60 fundo azul",

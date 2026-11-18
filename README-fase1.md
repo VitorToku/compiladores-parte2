@@ -1,8 +1,8 @@
-# Rabisco — uma linguagem para desenhar (Fase 1: do texto à AST)
+# Rabisko — uma linguagem para desenhar (Fase 1: do texto à AST)
 
 Atividade da disciplina **Laboratório de Programação Avançada II · Compiladores**.
 
-Rabisco é uma pequena linguagem de comandos para descrever desenhos. Esta fase implementa, em JavaScript puro e sem bibliotecas de análise, o **analisador léxico**, o **analisador sintático descendente recursivo** e a geração da **AST**. A Fase 2 converterá a AST em SVG.
+Rabisko é uma pequena linguagem de comandos para descrever desenhos. Esta fase implementa, em JavaScript puro e sem bibliotecas de análise, o **analisador léxico**, o **analisador sintático descendente recursivo** e a geração da **AST**. A Fase 2 converterá a AST em SVG.
 
 Partimos da estrutura do tutorial do Robô ([mmamorim/tutorial-robox-parser](https://github.com/mmamorim/tutorial-robox-parser)) e a adaptamos à nossa linguagem.
 
@@ -45,7 +45,7 @@ grupo move 200 190 {
 | Cores | `preto`, `branco`, `vermelho`, `verde`, `azul`, `amarelo`, `laranja`, `roxo` ou `#RRGGBB` |
 | Números | inteiros sem sinal (`0` é aceito; `05` é erro léxico) |
 
-A especificação completa (tokens e expressões regulares, gramática, tabela da AST e decisões de projeto) está em [`docs/Rabisco_Especificacao_Fase1.docx`](docs/Rabisco_Especificacao_Fase1.docx).
+A especificação completa (tokens e expressões regulares, gramática, tabela da AST e decisões de projeto) está em [`docs/Rabisko_Especificacao_Fase1.docx`](docs/Rabisko_Especificacao_Fase1.docx).
 
 ## Gramática
 

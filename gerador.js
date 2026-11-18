@@ -1,4 +1,4 @@
-// gerador.js — gerador de SVG da linguagem Rabisco (Fase 2).
+// gerador.js — gerador de SVG da linguagem Rabisko (Fase 2).
 //
 // gerar(ast) devolve o texto SVG. É recursivo, como o paraMermaid da aula de
 // AST: cada nó vira o seu elemento SVG e o grupo desce nos filhos.

@@ -1,4 +1,4 @@
-// tokens.js — vocabulário da linguagem Rabisco.
+// tokens.js — vocabulário da linguagem Rabisko.
 //
 // Cada regra tem: tipo (nome do token), padrao (expressão regular com a flag y,
 // como no tutorial do Robô) e, opcionalmente, ignorar (reconhece mas não guarda).

@@ -1,4 +1,4 @@
-// parser.js — analisador sintático descendente recursivo (LL(1)) da linguagem Rabisco.
+// parser.js — analisador sintático descendente recursivo (LL(1)) da linguagem Rabisko.
 // Gramática (sem recursão à esquerda; a alternativa depende só do próximo token):
 //
 //   programa → tela itens FIM
